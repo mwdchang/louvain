@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Louvain Clustering</title>
+<script src="lodash.min.js"></script>
+<script src="graph.js"></script>
+<script src="community.js"></script>
+</head>
+<body>
+<section>
+</section>
+</body>
+<script>
+
+
+/*
+let nodes = ['A', 'B', 'C', 'D', 'E', 'F'];
+let links = [
+  {from: 'A', to: 'B', w: 1.0},
+  {from: 'A', to: 'C', w: 1.0},
+  {from: 'A', to: 'F', w: 1.0},
+  {from: 'B', to: 'A', w: 1.0},
+  {from: 'B', to: 'C', w: 1.0},
+  {from: 'C', to: 'A', w: 1.0},
+  {from: 'C', to: 'B', w: 1.0},
+  {from: 'D', to: 'E', w: 1.0},
+  {from: 'D', to: 'F', w: 1.0},
+  {from: 'E', to: 'F', w: 1.0},
+  {from: 'E', to: 'D', w: 1.0},
+  {from: 'F', to: 'E', w: 1.0},
+  {from: 'F', to: 'D', w: 1.0},
+  {from: 'F', to: 'A', w: 1.0}
+];
+*/
+
+
+// See http://research.pomona.edu/complexnetworks/2016/01/03/louvain-performance-and-self-loops-the-problem/
+let nodes = ['A', 'B', 'C', 'D'];
+let links = [
+  {from: 'A', to: 'B', w:1.0},
+  {from: 'B', to: 'A', w:1.0},
+
+  {from: 'B', to: 'C', w:1.0},
+  {from: 'C', to: 'B', w:1.0},
+
+  {from: 'C', to: 'A', w:1.0},
+  {from: 'A', to: 'C', w:1.0},
+
+  {from: 'C', to: 'D', w:1.0},
+  {from: 'D', to: 'C', w:1.0}
+];
+
+
+
+
+let graph = new Graph();
+graph.load(nodes, links);
+graph.printStats();
+
+let comm = new Community(graph);
+comm.printStats();
+
+console.log('Neighbour A', graph.getNeighbours('A'));
+
+comm.oneLevel();
+
+
+</script>
+</html>
