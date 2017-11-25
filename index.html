@@ -13,7 +13,7 @@
 <script>
 
 
-/*
+
 let nodes = ['A', 'B', 'C', 'D', 'E', 'F'];
 let links = [
   {from: 'A', to: 'B', w: 1.0},
@@ -31,10 +31,11 @@ let links = [
   {from: 'F', to: 'D', w: 1.0},
   {from: 'F', to: 'A', w: 1.0}
 ];
-*/
+
 
 
 // See http://research.pomona.edu/complexnetworks/2016/01/03/louvain-performance-and-self-loops-the-problem/
+/*
 let nodes = ['A', 'B', 'C', 'D'];
 let links = [
   {from: 'A', to: 'B', w:1.0},
@@ -49,6 +50,7 @@ let links = [
   {from: 'C', to: 'D', w:1.0},
   {from: 'D', to: 'C', w:1.0}
 ];
+*/
 
 
 
@@ -61,8 +63,8 @@ let comm = new Community(graph);
 comm.printStats();
 
 console.log('Neighbour A', graph.getNeighbours('A'));
-
 comm.oneLevel();
+comm.printStats();
 
 
 </script>
