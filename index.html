@@ -2,69 +2,102 @@
 <html>
 <head>
 <title>Louvain Clustering</title>
+<script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="lodash.min.js"></script>
 <script src="graph.js"></script>
 <script src="community.js"></script>
+<script src="force.js"></script>
+
+<script src="examples.js"></script>
+
+<link rel="stylesheet" type="text/css" href="styles.css">
+
 </head>
 <body>
 <section>
+  <p>
+    Louvain modularity and community detection, visualized with force-directed layout. Going from left-to-right are successive 
+    passes of the Louvain method, each with increasing modularity. 
+    
+    Note nodes with self-loops (link going back to itself) are not rendered as normal edges, rather their nodes are highlighted.
+    <br>
+    See <a href="https://arxiv.org/abs/0803.0476" target="_blank">https://arxiv.org/abs/0803.0476</a>
+  </p>
+  <div class="column">
+    <div class="row">
+      <div class="graph" id="f0"></div>
+      <div class="graph" id="f1"></div>
+      <div class="graph" id="f2"></div>
+      <div class="graph" id="f3"></div>
+    </div>
+  </div>
 </section>
 </body>
 <script>
 
+// TODO: lookup need to be recursive to get the right size
+
+let nodes = mis.nodes;
+let links = mis.links;
 
 
-let nodes = ['A', 'B', 'C', 'D', 'E', 'F'];
-let links = [
-  {from: 'A', to: 'B', w: 1.0},
-  {from: 'A', to: 'C', w: 1.0},
-  {from: 'A', to: 'F', w: 1.0},
-  {from: 'B', to: 'A', w: 1.0},
-  {from: 'B', to: 'C', w: 1.0},
-  {from: 'C', to: 'A', w: 1.0},
-  {from: 'C', to: 'B', w: 1.0},
-  {from: 'D', to: 'E', w: 1.0},
-  {from: 'D', to: 'F', w: 1.0},
-  {from: 'E', to: 'F', w: 1.0},
-  {from: 'E', to: 'D', w: 1.0},
-  {from: 'F', to: 'E', w: 1.0},
-  {from: 'F', to: 'D', w: 1.0},
-  {from: 'F', to: 'A', w: 1.0}
-];
+let tmp = null;
+
+// Initial
+let graph0 = new Graph();
+let f0 = new Force(d3.select('#f0'), 500, 500);
+
+graph0.load(nodes, links);
+graph0.printStats();
+f0.setData(nodes, links, null);
+f0.render();
 
 
+// Pass 1
+let comm1 = new Community(graph0);
+let graph1 = new Graph();
+let f1 = new Force(d3.select('#f1'), 500, 500);
 
-// See http://research.pomona.edu/complexnetworks/2016/01/03/louvain-performance-and-self-loops-the-problem/
-/*
-let nodes = ['A', 'B', 'C', 'D'];
-let links = [
-  {from: 'A', to: 'B', w:1.0},
-  {from: 'B', to: 'A', w:1.0},
-
-  {from: 'B', to: 'C', w:1.0},
-  {from: 'C', to: 'B', w:1.0},
-
-  {from: 'C', to: 'A', w:1.0},
-  {from: 'A', to: 'C', w:1.0},
-
-  {from: 'C', to: 'D', w:1.0},
-  {from: 'D', to: 'C', w:1.0}
-];
-*/
+comm1.printStats();
+comm1.oneLevel();
+comm1.printStats();
+tmp = comm1.partition2Graph();
+graph1.load(tmp.nodes, tmp.links);
+graph1.printStats();
+f1.setData(tmp.nodes, tmp.links, tmp.lookup);
+f1.render();
 
 
+// Pass 2
+let comm2 = new Community(graph1);
+let graph2 = new Graph();
+let f2 = new Force(d3.select('#f2'), 500, 500);
+
+comm2.printStats();
+comm2.oneLevel();
+comm2.printStats();
+tmp = comm2.partition2Graph();
+graph2.load(tmp.nodes, tmp.links);
+graph2.printStats();
+f2.setData(tmp.nodes, tmp.links, tmp.lookup);
+f2.render();
 
 
-let graph = new Graph();
-graph.load(nodes, links);
-graph.printStats();
+// Pass 3
+let comm3 = new Community(graph2);
+let graph3 = new Graph();
+let f3 = new Force(d3.select('#f3'), 500, 500);
 
-let comm = new Community(graph);
-comm.printStats();
+comm3.printStats();
+comm3.oneLevel();
+comm3.printStats();
+tmp = comm3.partition2Graph();
+graph3.load(tmp.nodes, tmp.links);
+graph3.printStats();
+f3.setData(tmp.nodes, tmp.links, tmp.lookup);
+f3.render();
 
-console.log('Neighbour A', graph.getNeighbours('A'));
-comm.oneLevel();
-comm.printStats();
+
 
 
 </script>

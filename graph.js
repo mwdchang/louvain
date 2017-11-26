@@ -1,4 +1,5 @@
 
+
 class Graph {
   constructor() {
     this.num_nodes = 0;
@@ -13,7 +14,10 @@ class Graph {
     this.num_links = links.length;
     this.nodes = nodes;
     this.links = links;
+    this.sanitize();
+
     this.total_weight = _.sumBy(this.links, 'w');
+    // console.log('links', links);
   }
 
   sanitize() {

@@ -18,7 +18,7 @@ class Community {
 
   getNeighbourCommunities(node) {
     let neighbours = this.graph.getNeighbours(node);
-    console.log('getNeighbourCommunities', neighbours);
+    // console.log('getNeighbourCommunities', neighbours);
 
     let result = {};
     for (let i=0; i < neighbours.length; i++) {
@@ -47,15 +47,69 @@ class Community {
   }
 
 
+  /**
+   * Returns a nodes and edges of new graph based on current graph and new community
+   */
+  partition2Graph() {
+
+    // New nodes and reverse lookup
+    let lookup = {};
+    Object.keys(this.node2community).forEach( node => {
+      let c = this.node2community[node];
+
+      if (lookup.hasOwnProperty(c)) {
+        lookup[c].push(node);
+      } else {
+        lookup[c] = [node];
+      }
+    });
+    
+
+    // Collapse links
+    let links = [];
+    this.graph.links.forEach(link => {
+
+      let f = this.node2community[link.from];
+      let t = this.node2community[link.to];
+      let w = link.w;
+
+      let exist = links.filter( d => {
+        return d.from === f && d.to === t;
+      });
+
+      if (exist.length === 1) {
+        exist[0].w += w;
+      } else {
+        links.push({
+          from: f,
+          to: t,
+          w: w
+        });
+      }
+    });
+
+    return {
+      nodes: Object.keys(lookup),
+      links: links,
+      lookup: lookup
+    };
+  }
+
+
+
+
+  /**
+   * One pass
+   **/
   oneLevel() {
     let improved = false;
     let nodes = this.graph.nodes;
     let randomNodes = _.shuffle(nodes);
     let currentModularity = this.modularity();
 
-    console.log('Pass');
-    console.log('\tnodes ', nodes);
-    console.log('\trandomized', randomNodes);
+    // console.log('Pass');
+    // console.log('\tnodes ', nodes);
+    // console.log('\trandomized', randomNodes);
 
     let c = 0;
     while(true) {
@@ -81,7 +135,7 @@ class Community {
 
         keys.forEach(key => {
           let increase = this.modularityGain(node, key, neighbourCommunities[key], weightedDegree);
-          console.log('increase', increase);
+          // console.log('increase', increase);
           if (increase > bestGain) {
             bestGain = increase;
             bestComm = key;
@@ -121,13 +175,11 @@ class Community {
 
   modularityGain(node, community, degreeNodeCommunity, weightedDegree) {
     // console.log('> ', node, community, degreeNodeCommunity, weightedDegree, this.total);
-
     let totc = this.total[community];
     let degc = weightedDegree;
     let m2   = this.graph.total_weight;
     let dnc  = degreeNodeCommunity;
 
-    // console.log('>> ', totc, degc, m2, dnc);
     return (dnc - totc*degc/m2);
   }
 
