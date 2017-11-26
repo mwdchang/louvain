@@ -152,8 +152,9 @@ class Community {
     let m = this.graph.total_weight;
 
     this.graph.nodes.forEach( n => {
-      if (this.total[n] > 0) {
-        q += (this.inner[n] - this.total[n] * this.total[n] / (2*m))
+      let c = this.node2community[n];
+      if (this.total[c] > 0) {
+        q += (this.inner[c] - this.total[c] * this.total[c] / (2*m))
       }
     });
     return q / (2*m);

@@ -18,10 +18,13 @@
   <p>
     Louvain modularity and community detection, visualized with force-directed layout. Going from left-to-right are successive 
     passes of the Louvain method, each with increasing modularity. 
+
+    <ul>
+      <li> Node size is roughly proportional to the community size. </li>
+      <li> Note nodes with self-loops (link going back to itself) are not rendered as normal edges, rather their nodes are highlighted. </li>
+      <li> Graph structure is not deterministic as there may be tie-breaks when choosing new community. </li>
+    </ul>
     
-    Note nodes with self-loops (link going back to itself) are not rendered as normal edges, rather their nodes are highlighted.
-    <br>
-    See <a href="https://arxiv.org/abs/0803.0476" target="_blank">https://arxiv.org/abs/0803.0476</a>
   </p>
   <div class="column">
     <div class="row">
@@ -31,11 +34,25 @@
       <div class="graph" id="f3"></div>
     </div>
   </div>
+  <p>
+    See <a href="https://arxiv.org/abs/0803.0476" target="_blank">https://arxiv.org/abs/0803.0476</a>
+  </p>
 </section>
 </body>
 <script>
 
 // TODO: lookup need to be recursive to get the right size
+function expand(curr, prev) {
+  let r = {};
+  Object.keys(curr).forEach( key => {
+    let tmp = curr[key].map( d => {
+      return prev[d];
+    });
+    r[key] = _.flatten(tmp);
+  });
+  return r;
+}
+
 
 let nodes = mis.nodes;
 let links = mis.links;
@@ -45,56 +62,63 @@ let tmp = null;
 
 // Initial
 let graph0 = new Graph();
-let f0 = new Force(d3.select('#f0'), 500, 500);
+let f0 = new Force(d3.select('#f0'), 450, 450);
 
 graph0.load(nodes, links);
 graph0.printStats();
 f0.setData(nodes, links, null);
+f0.setLabel('Init // Nodes: ' + nodes.length);
 f0.render();
 
 
 // Pass 1
 let comm1 = new Community(graph0);
 let graph1 = new Graph();
-let f1 = new Force(d3.select('#f1'), 500, 500);
+let f1 = new Force(d3.select('#f1'), 450, 450);
 
 comm1.printStats();
 comm1.oneLevel();
-comm1.printStats();
 tmp = comm1.partition2Graph();
 graph1.load(tmp.nodes, tmp.links);
 graph1.printStats();
-f1.setData(tmp.nodes, tmp.links, tmp.lookup);
+
+let f1lookup = tmp.lookup;
+f1.setData(tmp.nodes, tmp.links, f1lookup);
+f1.setLabel('Pass 1 // Nodes: ' + tmp.nodes.length) ;
 f1.render();
 
 
 // Pass 2
 let comm2 = new Community(graph1);
 let graph2 = new Graph();
-let f2 = new Force(d3.select('#f2'), 500, 500);
+let f2 = new Force(d3.select('#f2'), 450, 450);
 
 comm2.printStats();
 comm2.oneLevel();
-comm2.printStats();
 tmp = comm2.partition2Graph();
 graph2.load(tmp.nodes, tmp.links);
 graph2.printStats();
-f2.setData(tmp.nodes, tmp.links, tmp.lookup);
+
+let f2lookup = expand(tmp.lookup, f1lookup);
+f2.setData(tmp.nodes, tmp.links, f2lookup);
+f2.setLabel('Pass 2 // Nodes: ' + tmp.nodes.length) ;
 f2.render();
 
 
 // Pass 3
 let comm3 = new Community(graph2);
 let graph3 = new Graph();
-let f3 = new Force(d3.select('#f3'), 500, 500);
+let f3 = new Force(d3.select('#f3'), 450, 450);
 
 comm3.printStats();
 comm3.oneLevel();
-comm3.printStats();
 tmp = comm3.partition2Graph();
 graph3.load(tmp.nodes, tmp.links);
 graph3.printStats();
-f3.setData(tmp.nodes, tmp.links, tmp.lookup);
+
+let f3lookup = expand(tmp.lookup, f2lookup);
+f3.setData(tmp.nodes, tmp.links, f3lookup);
+f3.setLabel('Pass 3 // Nodes: ' + tmp.nodes.length) ;
 f3.render();
 
 
